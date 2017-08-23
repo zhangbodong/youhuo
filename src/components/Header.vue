@@ -18,7 +18,7 @@
 	        <span class="navbar-link"></span>
 	        <span v-text="nickName" v-if="nickName"></span>
 	        <a href="javascript:void(0)" class="navbar-link" v-if="!nickName" @click="loginModalFlag = true">登录</a>
-	        <a href="javascript:void(0)" class="navbar-link">退出</a>
+	        <a href="javascript:void(0)" class="navbar-link" @click="logout">退出</a>
 	        <div class="navbar-cart-container">
 	          <span class="navbar-cart-count"></span>
 	          <a class="navbar-link navbar-cart-link" href="/#/cart">
@@ -32,7 +32,7 @@
 	  </div>
 	  
 	  <!-- 登录框 -->
-      <div class="md-modal modal-msg md-modal-transition" :class="{'md-show' :loginModalFlag}">
+      <div class="md-modal modal-msg md-modal-transition" :class="{'md-show':loginModalFlag}">
         <div class="md-modal-inner">
           <div class="md-top">
             <div class="md-title">login in</div>
@@ -78,7 +78,19 @@
 	  	  nickName:''
 	  	}
 	  },
+	  mounted: function(){
+	  	this.checkLogin();
+	  },
 	  methods:{
+	  	checkLogin(){
+	  		axios.get("/users/checkLogin").then((response) =>{
+	  			let res = response.data;
+					// console.log(response);
+	  			if(res.status == 0){
+	  				this.nickName = res.result;
+	  			}
+	  		})
+	  	},
 	  	login(){
 //            需要获取表单的用户名和密码给后端接口
             if(!this.userName || !this.userPwd){
@@ -98,7 +110,15 @@
             		this.errorTip = true;
             	}
             })
-              this.loginModalFlag = true;
+//            this.loginModalFlag = true;
+	  	},
+	  	logout(){
+	  		axios.post('/users/logout').then((response) =>{
+	  			let res = response.data;
+	  			if(res.status == '0'){
+	  				this.nickName = '';
+	  			}
+	  		})
 	  	}
 	  }
 	}
