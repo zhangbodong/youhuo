@@ -56,13 +56,24 @@
 		</div>
 		<nav-footer></nav-footer>
 
+		<!-- 在未登录的情况下 -->
 		<modal :mdShow="mdShow">
 			<p slot="message">请先登录否则无法加入购物车</p>
 			<div slot="btnGroup">
-		        <a href=" javascript:; " class="btn-login ">关闭</a>
-		    </div>
-			</modal>
-		</div>
+				<a href=" javascript:; " class="btn-login" @click="mdShow=false">关闭</a>
+			</div>
+		</modal>
+
+		<!-- 登录成功情况下 -->
+		<modal :mdShow="mdShowCart">
+			<p slot="message">加入购物车成功</p>
+			<div slot="btnGroup">
+				<a href=" javascript:; " class="btn btn--m " @click="mdShowCart=false">继续购物</a>
+				<router-link class="btn btn--m" to="/cart">查看购物车</router-link>
+			</div>
+		</modal>
+
+	</div>
 </template>
 <script>
 import NavHeader from '@/components/Header.vue'
@@ -82,6 +93,7 @@ export default {
 			pagesize: 8,
 			flag: false,
 			mdShow: false,
+			mdShowCart:false,
 			priceFilter: [
 				{
 					startPrice: '0.00',
@@ -164,12 +176,12 @@ export default {
 				productId: productId
 			}).then((result) => {
 				var res = result.data;
-				console.log(result);
+				
 				if (res.status == 1) {
-					console.log("fdfd");
 					this.mdShow = true;
 				} else {
-					alert('加入购物车成功')
+					this.mdShowCart = true;
+					// alert('加入购物车成功')
 				}
 			})
 		},
