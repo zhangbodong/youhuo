@@ -162,19 +162,24 @@ export default {
         },
         checkedCount() {
             var i = 0;
-            this.cartList.forEach((item) => {
-                if (item.checked == '1') i++;
-            })
-            return i;
+            
+            if(this.cartList.forEach){
+                this.cartList.forEach((item) => {
+                    if (item.checked == '1') i++;
+                })
+            }
+                return i;
         },
         totalPrice() {
             let money = 0;
-            this.cartList.forEach((item) => {
-                if (item.checked == '1') {
-                    money += parseFloat(item.salePrice) * parseInt(item.productNum);
-                }
-            })
-            return money;
+            if(this.cartList.forEach){
+                this.cartList.forEach((item) => {
+                    if (item.checked == '1') {
+                        money += parseFloat(item.salePrice) * parseInt(item.productNum);
+                    }
+                 })
+            }
+                return money;
         }
     },
     mounted() {

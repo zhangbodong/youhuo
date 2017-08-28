@@ -126,55 +126,29 @@ router.post('/cartEdit',function(req,res,next){
 
 router.post("/cartDel",function(req,res,next){
 	var userId = req.cookies.userId,productId = req.body.productId;
-
-	console.log("============================")
-	console.log(productId);
-	console.log(userId);
-
-	console.log("4!")
-
 	User.update({
-		'userId': userId
-	}, {
-		'$pull': {
-			'productId': productId
+		userId:userId
+	},{
+		$pull:{
+			'cartList':{
+				'productId':productId
+			}
 		}
-	}, function(err, doc){
-
-		console.log("2============================")
-		
-		console.log(err);
-		console.log(doc);
-		console.log(doc.userName); //MDragon
-
-		console.log("3============================")
-		
-	});
-
-
-	// User.update({
-	// 	userId:userId
-	// },{
-	// 	$pull:{
-	// 		'cartList':{
-	// 			'productId':productId
-	// 		}
-	// 	}
-	// },function(err,doc){
-	// 	if(err){
-	// 		res.json({
-	// 			status:'1',
-	// 			msg:err.message,
-	// 			result:''
-	// 		})
-	// 	}else{
-	// 		res.json({
-	// 			status:'0',
-	// 			msg:'',
-	// 			result:'商品删除成功'
-	// 		})
-	// 	}
-	// })
+	},function(err,doc){
+		if(err){
+			res.json({
+				status:'1',
+				msg:err.message,
+				result:''
+			})
+		}else{
+			res.json({
+				status:'0',
+				msg:'',
+				result:'商品删除成功'
+			})
+		}
+	})
 })
 //全选的接口
 router.post('/editCheckAll',function(res,req,next){
