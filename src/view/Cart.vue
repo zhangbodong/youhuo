@@ -52,7 +52,7 @@
                             <li v-for="item in cartList">
                                 <div class="cart-tab-1">
                                     <div class="cart-item-check">
-                                        <a href="javascipt:;" class="checkbox-btn item-check-btn">
+                                        <a href="javascipt:;" class="checkbox-btn item-check-btn" :class="{'check':item.checked =='1'}" @click="editCart('check',item)">
                                             <svg class="icon icon-ok">
                                                 <use xlink:href="#icon-ok"></use>
                                             </svg>
@@ -99,20 +99,20 @@
                     <div class="cart-foot-inner">
                         <div class="cart-foot-l">
                             <div class="item-all-check">
-                                <a href="javascipt:;">
-                                    <span class="checkbox-btn item-check-btn">
+                                <a href="javascipt:;" @click="toggleCheckAll">
+                                    <span class="checkbox-btn item-check-btn" :class="{'check':checkAllFlag}">
                                         <svg class="icon icon-ok">
                                             <use xlink:href="#icon-ok" />
                                         </svg>
                                     </span>
-                                    <span>Select all</span>
+                                    <span>全选</span>
                                 </a>
                             </div>
                         </div>
                         <div class="cart-foot-r">
                             <div class="item-total">
                                 总价格:
-                                <span class="total-price">500</span>
+                                <span class="total-price">{{totalPrice}}</span>
                             </div>
                             <div class="btn-wrap">
                                 <a class="btn btn--red">结账</a>
@@ -129,7 +129,7 @@
                 你确定要删除此条数据吗？
             </a>
             <div slot="btnGroup">
-                <a href="" class="btn btn--m" @click="delCart">确定</a>
+                <a href="#" class="btn btn--m" @click="delCart">确定</a>
                 <a href="javascript:;" class="btn btn--m" @click="modalConfirm = false">关闭</a>
             </div>
         </modal>
@@ -145,8 +145,9 @@ export default {
     data() {
         return {
             cartList: Object,
-            modalConfirm:false,
-            productId:''
+            modalConfirm: false,
+            productId: '',
+            checked: ''
         }
     },
     components: {
@@ -154,6 +155,27 @@ export default {
         NavFooter,
         NavBread,
         Modal
+    },
+    computed: {
+        checkAllFlag() {
+            return this.checkedCount == this.cartList.length;
+        },
+        checkedCount() {
+            var i = 0;
+            this.cartList.forEach((item) => {
+                if (item.checked == '1') i++;
+            })
+            return i;
+        },
+        totalPrice() {
+            let money = 0;
+            this.cartList.forEach((item) => {
+                if (item.checked == '1') {
+                    money += parseFloat(item.salePrice) * parseInt(item.productNum);
+                }
+            })
+            return money;
+        }
     },
     mounted() {
         this.init();
@@ -166,36 +188,62 @@ export default {
                 this.cartList = res.result;
             })
         },
-        delCartConfirm(productId){
+        delCartConfirm(productId) {
             this.modalConfirm = true;
             this.productId = productId;
         },
-        delCart(){
-            axios.post('/users/cartDel',{
-                productId:this.productId
+        toggleCheckAll(){
+            let flag = !this.checkAllFlag;
+            this.cartList.forEach((item) =>{
+                item.checked = flag ? 1 : 0;
+            })
+
+            axios.post('users/editCheckAll',{
+                checkAll:this.checkAllFlag
+            }).then((response)=>{
+                let res = response.data;
+                if(res.status == '0'){
+                    console.log(res.result);
+                }
+            })
+        },
+        delCart() {
+
+            console.log("del Cart ======");
+
+
+            axios.post('/users/cartDel', {
+                productId: this.productId
             }).then((response) => {
                 let res = response.data;
                 this.modalConfirm = false;
                 this.init();
             })
         },
-        editCart(flag,item){
-            if(flag == 'add'){
-              item.productNum++;
-            }else if(flag == 'minu'){
-                if(item.productNum <= 1){
+        editCart(flag, item) {
+            if (flag == 'add') {
+                item.productNum++;
+            } else if (flag == 'minu') {
+                if (item.productNum <= 1) {
                     return;
                 }
                 item.productNum--;
+            } else {
+                //当前取反，当未选中的时候是0.点击后变为1
+                item.checked = item.checked == '1' ? '0' : '1';
             }
 
-            axios.post("/users/cartEdit",{
-                productId:item.productId,
-                productNum:item.productNum
+            axios.post("/users/cartEdit", {
+                productId: item.productId,
+                productNum: item.productNum,
+                checked: item.checkeds
             }).then((response) => {
                 let res = response.data;
                 console.log(res);
             })
+        },
+        checkeds() {
+            this.checked = 1;
         }
     }
 }

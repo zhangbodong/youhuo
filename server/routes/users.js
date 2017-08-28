@@ -102,9 +102,11 @@ router.post('/cartEdit',function(req,res,next){
 	let userId = req.cookies.userId;
 	productId = req.body.productId;
 	productNum = req.body.productNum;
+	checked = req.body.checked;
 
 	User.update({"userId":userId,"cartList.productId":productId},{
-		"cartList.$.productNum":productNum
+		"cartList.$.productNum":productNum,
+		"cartList.$.checked":checked,
 	},function(err,doc){
 		  if(err){
 				res.json({
@@ -124,15 +126,61 @@ router.post('/cartEdit',function(req,res,next){
 
 router.post("/cartDel",function(req,res,next){
 	var userId = req.cookies.userId,productId = req.body.productId;
+
+	console.log("============================")
+	console.log(productId);
+	console.log(userId);
+
+	console.log("4!")
+
 	User.update({
-		userId:userId
-	},{
-		$pull:{
-			'cartList':{
-				'productid':productId
-			}
+		'userId': userId
+	}, {
+		'$pull': {
+			'productId': productId
 		}
-	},function(err,doc){
+	}, function(err, doc){
+
+		console.log("2============================")
+		
+		console.log(err);
+		console.log(doc);
+		console.log(doc.userName); //MDragon
+
+		console.log("3============================")
+		
+	});
+
+
+	// User.update({
+	// 	userId:userId
+	// },{
+	// 	$pull:{
+	// 		'cartList':{
+	// 			'productId':productId
+	// 		}
+	// 	}
+	// },function(err,doc){
+	// 	if(err){
+	// 		res.json({
+	// 			status:'1',
+	// 			msg:err.message,
+	// 			result:''
+	// 		})
+	// 	}else{
+	// 		res.json({
+	// 			status:'0',
+	// 			msg:'',
+	// 			result:'商品删除成功'
+	// 		})
+	// 	}
+	// })
+})
+//全选的接口
+router.post('/editCheckAll',function(res,req,next){
+	let userId = req.cookies.userId,
+	checkAll = req.body.checkAll ? '1' : '0';
+	User.findOne({userId:userId},function(err,user){
 		if(err){
 			res.json({
 				status:'1',
@@ -140,10 +188,23 @@ router.post("/cartDel",function(req,res,next){
 				result:''
 			})
 		}else{
-			res.json({
-				status:'0',
-				msg:'',
-				result:'商品删除成功'
+			user.cartList.forEach((item)=>{
+				item.checked = checkAll;
+			})
+			user.save(function(err1,doc){
+				if(err1){
+					res.json({
+						status:'1',
+						msg:err.message,
+						result:''
+					});
+				}else{
+					res.json({
+						status:'0',
+						msg:'',
+						result:'操作成功'
+					})
+				}
 			})
 		}
 	})
